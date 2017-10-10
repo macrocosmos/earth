@@ -2,7 +2,7 @@ import json
 import requests
 
 API_ENDPOINT = 'http://0.0.0.0:8000/api/v1/images/'
-SHAPEFILE = './arskainiai.geojson'
+SHAPEFILE = './raseiniai.geojson'
 
 data = {
     'area': json.loads(open(SHAPEFILE).read()),
