@@ -71,6 +71,18 @@ def image_view(request):
         transformed_geojson = rasterio.warp.transform_geom('epsg:4326', raster_file.crs, shape)
         out_image, out_transform = rasterio.mask.mask(raster_file, [transformed_geojson], crop=True)
 
+        out_meta = raster_file.meta.copy()
+
+        out_meta.update({
+            'driver': 'JP2OpenJPEG',
+             'height': out_image.shape[1],
+             'width': out_image.shape[2],
+             'transform': out_transform,
+         })
+
+        with rasterio.open('out.jp2', 'w', **out_meta) as dest:
+            dest.write(out_image)
+
     return JsonResponse({
         'success': True,
     }, safe=False)
