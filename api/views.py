@@ -1,24 +1,19 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 
 import json
 import scipy
 import pygeoj
 import mgrs
 import numpy as np
-import datetime
 from dateutil import parser
 import requests
 import rasterio
 import rasterio.tools
 import rasterio.mask
 import rasterio.warp
-import tempfile
-import shutil
-import shapely.geometry
-import shapely.affinity
-from affine import Affine
 
 BASE_URL = ['https://sentinel-s2-l1c.s3.amazonaws.com', 'tiles']
 
@@ -28,12 +23,7 @@ def image_view(request):
     geojson = data['area']
     loaded_geojson = pygeoj.load(data=geojson)
     geometry = loaded_geojson[0].geometry
-    # print(geojson)
     coordinates = geometry.coordinates[0]
-
-    # print(loaded_geojson.crs)
-    # print(loaded_geojson.crs.name)
-    # print(geo_shape.bounds)
 
     if 'features' in geojson:
         geometries = [f['geometry'] for f in geojson['features']]
@@ -64,7 +54,7 @@ def image_view(request):
     BAND_PART = ['B' + data['band'] + '.jp2']
 
     url = '/'.join(np.concatenate((BASE_URL, TILE_PART, DATE_PART, TAKE_PART, BAND_PART)))
-    print(url)
+    print('Requesting:', url)
 
     with rasterio.open(url) as raster_file:
         shape = geojson['features'][0]['geometry']
@@ -83,6 +73,6 @@ def image_view(request):
         with rasterio.open('out.jp2', 'w', **out_meta) as dest:
             dest.write(out_image)
 
-    return JsonResponse({
-        'success': True,
-    }, safe=False)
+    fsock = open('out.jp2', 'rb')
+    response = HttpResponse(fsock, content_type='image/jp2')
+    return response

@@ -6,9 +6,9 @@ SHAPEFILE = './raseiniai.geojson'
 
 data = {
     'area': json.loads(open(SHAPEFILE).read()),
-    'date': '2017-10-05',
+    'date': '2017-8-21',
     'take': '0',
-    'band': '01',
+    'band': '08',
 }
 
 request = requests.post(url = API_ENDPOINT, data = json.dumps(data))
